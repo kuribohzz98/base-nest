@@ -1,0 +1,27 @@
+stages:
+    - ESLint
+    - DeployDev
+
+ESLint:
+    stage: ESLint
+    image: node:12.22.1-alpine
+    only:
+        - main@web-smart-city/wsc-api
+        - master@web-smart-city/wsc-api
+    script:
+        - npm install
+        - npm run lint:prod
+
+DeployDev:
+    stage: DeployDev
+    image: amelacorp/node:14-buster-slim
+    only:
+        - main@web-smart-city/wsc-api
+    script:
+        - mkdir -p /home/ubuntu/server-api
+        - npm install
+        - npm run build:prod
+        - rm -rf /home/ubuntu/server-api/dist
+        - cp -r dist package.json package-lock.json templates pm2.json ormconfig.json node_modules tsconfig.json /home/ubuntu/server-api
+        - cd /home/ubuntu/server-api
+        - pm2 start pm2.json

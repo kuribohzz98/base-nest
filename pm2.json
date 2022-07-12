@@ -1,0 +1,16 @@
+{
+	"apps": [
+		{
+			"cwd": ".",
+			"name": "server-api",
+			"script": "./dist/main.js",
+			"instances": 1,
+			"exec_mode": "cluster_mode",
+			"max_restarts": 10,
+			"min_uptime": 300,
+			"env": {
+				"NODE_ENV": "production"
+			}
+		}
+	]
+}
