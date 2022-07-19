@@ -61,6 +61,9 @@ class EnvironmentVariables implements Record<EEnvKey, number | string> {
 	AWS_S3_END_POINT: string;
 
 	@DtoString({ optional: true })
+	DATABASE_TYPE: string;
+
+	@DtoString({ optional: true })
 	DATABASE_HOST: string;
 
 	@DtoString({ optional: true })

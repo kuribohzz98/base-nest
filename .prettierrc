@@ -16,6 +16,7 @@
 		"^@guards/(.*)$",
 		"^@modules/(.*)$",
 		"^@shared/(.*)$",
+		"^~/(.*)$",
 		"^[./]"
 	],
 	"importOrderSeparation": true,

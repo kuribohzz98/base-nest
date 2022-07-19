@@ -52,7 +52,7 @@ export class LoginTwitterService {
 					of(
 						this.jwtAuthService.getLoginData(
 							user.id,
-							user.type === EUserType.USER ? EGuardType.USER : EGuardType.BUSINESSMAN,
+							user.type === EUserType.USER ? EGuardType.USER : EGuardType.USER,
 							user.lastUpdatePrivacy.getTime(),
 						),
 					),

@@ -13,7 +13,7 @@ async function bootstrap() {
 	app.setGlobalPrefix(configService.get<string>(EEnvKey.GLOBAL_PREFIX) || 'api');
 	app.enableCors({
 		methods: '*',
-		allowedHeaders: ['authorization', 'accesstoken'],
+		allowedHeaders: ['authorization'],
 		origin: '*',
 	});
 

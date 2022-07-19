@@ -14,12 +14,10 @@ export class UserGuard extends BaseGuard<UserEntity> {
 	protected guardTypes: EGuardType[] = [EGuardType.USER];
 
 	protected getUser(jwtPayload: IJwtPayload): Promise<UserEntity> {
-		return getRepository(UserEntity).findOne(
-			{ id: jwtPayload.userId, isVerified: true },
-			{
-				select: ['id', 'uid', 'isBlocked', 'lastUpdatePrivacy'],
-				cache: true, // 10s
-			},
-		);
+		return getRepository(UserEntity).findOne({
+			where: { id: jwtPayload.userId, isVerified: true },
+			select: ['id', 'uid', 'isBlocked', 'lastUpdatePrivacy'],
+			cache: true, // 10s
+		});
 	}
 }

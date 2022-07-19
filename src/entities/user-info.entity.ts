@@ -1,4 +1,4 @@
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 
 import { EGender, ETableName } from '@constants/entity.constant';
 
@@ -26,5 +26,6 @@ export class UserInfoEntity extends BaseEntityIncludeTimeUpdate {
 	// references
 
 	@OneToOne(() => UserEntity, user => user.userInfo)
+	@JoinColumn({ name: 'user_id' })
 	user: UserEntity;
 }

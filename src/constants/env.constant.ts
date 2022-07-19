@@ -11,6 +11,7 @@ export enum EEnvKey {
 	RATE_LIMITTER_LIMIT = 'RATE_LIMITTER_LIMIT',
 
 	// db
+	DATABASE_TYPE = 'DATABASE_TYPE',
 	DATABASE_HOST = 'DATABASE_HOST',
 	DATABASE_USER = 'DATABASE_USER',
 	DATABASE_PASSWORD = 'DATABASE_PASSWORD',
@@ -37,3 +38,13 @@ export enum ENodeEnvironment {
 	PRODUCTION = 'production',
 	TEST = 'test',
 }
+
+export const EnvFilePath = [
+	'.env.production',
+	'.env.dev',
+	'.env.development',
+	'.env.test',
+	'.env.development.local',
+	'.env.production.local',
+	'.env',
+];

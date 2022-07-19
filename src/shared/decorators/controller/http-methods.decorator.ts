@@ -4,8 +4,6 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { EGuardType } from '@constants/guard.constant';
 
 import { JwtGuard } from '@guards/jwt.guard';
-import { AdminGuard } from '@guards/roles/admin.guard';
-import { BusinessmanGuard } from '@guards/roles/businessman.guard';
 import { UserGuard } from '@guards/roles/user.guard';
 
 import { ValidationBodyPipe, ValidationQueryPipe } from '@shared/pipes/validation.pipe';
@@ -45,12 +43,6 @@ function getGuard(type: EGuardType) {
 	switch (type) {
 		case EGuardType.USER: {
 			return UserGuard;
-		}
-		case EGuardType.ADMIN: {
-			return AdminGuard;
-		}
-		case EGuardType.BUSINESSMAN: {
-			return BusinessmanGuard;
 		}
 		default:
 			return;

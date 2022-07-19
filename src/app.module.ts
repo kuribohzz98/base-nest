@@ -2,6 +2,8 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 
 import { CustomConfigModule } from '@configs/config.module';
 
+import { TransactionExecutorModule } from '@core/transaction';
+
 import { RateLimitterModule } from '@guards/throttler/rate-limitter.module';
 
 import { LoggerHttpRequestMiddleware } from '@shared/middleware/logger-http-request.middleware';
@@ -13,7 +15,14 @@ import { MySQLModule } from './databases/mysql.module';
 import { MODULES } from './modules';
 
 @Module({
-	imports: [CustomConfigModule, RateLimitterModule, AuthenticationModule, MySQLModule, ...MODULES],
+	imports: [
+		CustomConfigModule,
+		RateLimitterModule,
+		AuthenticationModule,
+		MySQLModule,
+		TransactionExecutorModule.forRoot(),
+		...MODULES,
+	],
 	controllers: [AppController],
 	providers: [AppService],
 })

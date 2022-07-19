@@ -42,20 +42,17 @@ export class AuthService {
 			if (!EGuardType[type]) {
 				httpException(AuthException.RefreshToken, 'BAD_REQUEST', 'token-invalid');
 			}
-			const user = await this.userRepo.findOne(
-				{ id: userId, isVerified: true, isBlocked: Not(Equal(true)) },
-				{ select: ['id', 'type', 'lastUpdatePrivacy'] },
-			);
+			const user = await this.userRepo.findOne({
+				where: { id: userId, isVerified: true, isBlocked: Not(Equal(true)) as any },
+				select: ['id', 'type', 'lastUpdatePrivacy'],
+			});
 			if (!user) {
 				httpException(AuthException.RefreshToken, 'BAD_REQUEST', 'token-expired');
 			}
 			if (lastUpdatePrivacy !== user.lastUpdatePrivacy.getTime()) {
 				httpException(AuthException.RefreshToken, 'BAD_REQUEST', 'token-expired');
 			}
-			if (
-				(user.type === EUserType.USER && type !== EGuardType.USER) ||
-				(user.type === EUserType.BUSINESSMAN && type !== EGuardType.BUSINESSMAN)
-			) {
+			if (user.type === EUserType.USER && type !== EGuardType.USER) {
 				httpException(AuthException.RefreshToken, 'BAD_REQUEST', 'token-expired');
 			}
 			return {
@@ -71,10 +68,10 @@ export class AuthService {
 	}
 
 	async login(data: LoginBodyDto) {
-		const user = await this.userRepo.findOne(
-			{ email: data.email, isVerified: true },
-			{ select: ['id', 'isBlocked', 'password', 'type', 'lastUpdatePrivacy'] },
-		);
+		const user = await this.userRepo.findOne({
+			where: { email: data.email, isVerified: true },
+			select: ['id', 'isBlocked', 'password', 'type', 'lastUpdatePrivacy'],
+		});
 		if (!user) {
 			httpException(AuthException.General, 'BAD_REQUEST', 'incorrect-username-or-password');
 		}
@@ -86,13 +83,13 @@ export class AuthService {
 		}
 		return this.jwtAuthService.getLoginData(
 			user.id,
-			user.type === EUserType.USER ? EGuardType.USER : EGuardType.BUSINESSMAN,
+			user.type === EUserType.USER ? EGuardType.USER : EGuardType.USER,
 			user.lastUpdatePrivacy.getTime(),
 		);
 	}
 
 	async register(data: RegisterBodyDto) {
-		const user = await this.userRepo.findOne({ email: data.email });
+		const user = await this.userRepo.findOne({ where: { email: data.email } });
 
 		// register
 		if (!user) {
@@ -113,7 +110,7 @@ export class AuthService {
 	}
 
 	async forgotPassword(email: string) {
-		const user = await this.userRepo.findOne({ email });
+		const user = await this.userRepo.findOne({ where: { email } });
 		if (!user || user?.isVerified) {
 			httpException(AuthException.General, 'BAD_REQUEST', 'email-not-use');
 		}
@@ -125,10 +122,10 @@ export class AuthService {
 	}
 
 	async changePassword(id: number, data: ChangePasswordBodyDto) {
-		const user = await this.userRepo.findOne(
-			{ id, isVerified: true },
-			{ select: ['id', 'email', 'isBlocked', 'password', 'type', 'lastUpdatePrivacy'] },
-		);
+		const user = await this.userRepo.findOne({
+			where: { id, isVerified: true },
+			select: ['id', 'email', 'isBlocked', 'password', 'type', 'lastUpdatePrivacy'],
+		});
 		if (!user?.email || !user?.password) {
 			httpException(AuthException.ChangePassword, 'FORBIDDEN', 'cant-change-password');
 		}
@@ -143,13 +140,13 @@ export class AuthService {
 		await this.userRepo.update(user.id, { password: pwHashed, lastUpdatePrivacy });
 		return this.jwtAuthService.getLoginData(
 			user.id,
-			user.type === EUserType.USER ? EGuardType.USER : EGuardType.BUSINESSMAN,
+			user.type === EUserType.USER ? EGuardType.USER : EGuardType.USER,
 			lastUpdatePrivacy.getTime(),
 		);
 	}
 
 	async verify(data: VerifyBodyRequest) {
-		const user = await this.userRepo.findOne({ email: data.email, uid: data.uid });
+		const user = await this.userRepo.findOne({ where: { email: data.email, uid: data.uid } });
 		if (!user?.verifyContent) {
 			httpException(AuthException.Verify, 'BAD_REQUEST', 'param-invalid');
 		}

@@ -1,17 +1,19 @@
 import { firstValueFrom, isObservable } from 'rxjs';
-import { EntityManager, Transaction, TransactionManager } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
+import { IsolationLevel } from 'typeorm/driver/types/IsolationLevel';
 
 type KeyResultType = { [x: string]: string };
-type ResultType = { [x: string]: any };
+type ResultType<T = any> = T & { [x: string]: any };
 
-const symbolKeyResult = Symbol('key-result');
-const symbolFunction = Symbol('function');
+const symbolKeyResult = Symbol('tran-key-result');
+const symbolFunction = Symbol('tran-function');
 
-abstract class OrmTransaction {
+export abstract class OrmTransaction {
 	protected manager: EntityManager;
-	protected _result: ResultType = {};
+	private _result: ResultType = {};
 	private keyResult: KeyResultType = {};
 	private functions: string[] = [];
+	private isolationLevel: IsolationLevel;
 
 	constructor() {
 		this.keyResult = Reflect.getMetadata(symbolKeyResult, this);
@@ -19,21 +21,36 @@ abstract class OrmTransaction {
 	}
 
 	get result() {
-		return this.result;
+		return this._result;
 	}
 
-	async exec() {
+	async exec(dataSource: DataSource) {
 		if (!this._checkFuncs()) return;
-		await this.createTransaction.bind(this);
+		await this.execTransaction(dataSource);
+		return this._result;
 	}
 
 	private _checkFuncs() {
 		return this.functions?.length;
 	}
 
-	@Transaction()
-	private async createTransaction(@TransactionManager() manager: EntityManager) {
-		await this.run(manager);
+	private async execTransaction(dataSource: DataSource) {
+		const queryRunner = dataSource.createQueryRunner();
+
+		await queryRunner.connect();
+		await queryRunner.startTransaction(this.isolationLevel);
+
+		try {
+			await this.run(queryRunner.manager);
+
+			await queryRunner.commitTransaction();
+		} catch (err) {
+			// since we have errors lets rollback the changes we made
+			await queryRunner.rollbackTransaction();
+		} finally {
+			// you need to release a queryRunner which was manually instantiated
+			await queryRunner.release();
+		}
 	}
 
 	private async run(manager: EntityManager) {
@@ -65,6 +82,14 @@ function defineResultKey(target: OrmTransaction, propertyKey: string, keyName: s
 		Reflect.defineMetadata(symbolKeyResult, keyResult, target);
 	}
 	keyResult[propertyKey] = keyName;
+}
+
+export function OrmIsolation(isolationLevel?: IsolationLevel) {
+	return function <T extends { new (...args: any[]): {} }>(base: T) {
+		return class extends base {
+			isolationLevel = isolationLevel;
+		};
+	};
 }
 
 export function TransactionAction(keyName?: string) {

@@ -25,7 +25,8 @@
 			"@entities/*": ["entities/*"],
 			"@guards/*": ["guards/*"],
 			"@modules/*": ["modules/*"],
-			"@shared/*": ["shared/*"]
+			"@shared/*": ["shared/*"],
+			"~/*": ["*"],
 		}
 	},
 	"exclude": ["node_modules", "dist"]

@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+.husky
+.vscode
+.dist
+test
+README.md
+.prettierrc
+.eslintrc.js
+.gitignore
+
+#env
+.env.example
+.env

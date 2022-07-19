@@ -35,7 +35,12 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # env
+.env
+.env.dev
 .env.development
 .env.production
+.env.development.local
+.env.production.local
+.env.test
 
 yarn.lock
