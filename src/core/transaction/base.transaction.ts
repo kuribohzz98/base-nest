@@ -1,14 +1,13 @@
 import { firstValueFrom, isObservable } from 'rxjs';
 import { DataSource, EntityManager } from 'typeorm';
-import { IsolationLevel } from 'typeorm/driver/types/IsolationLevel';
+import type { IsolationLevel } from 'typeorm/driver/types/IsolationLevel';
+
+import { symbolFunction, symbolKeyResult } from './transaction.constant';
 
 type KeyResultType = { [x: string]: string };
 type ResultType<T = any> = T & { [x: string]: any };
 
-const symbolKeyResult = Symbol('tran-key-result');
-const symbolFunction = Symbol('tran-function');
-
-export abstract class OrmTransaction {
+export abstract class OrmTransaction<T = any> {
 	protected manager: EntityManager;
 	private _result: ResultType = {};
 	private keyResult: KeyResultType = {};
@@ -24,7 +23,7 @@ export abstract class OrmTransaction {
 		return this._result;
 	}
 
-	async exec(dataSource: DataSource) {
+	async exec(dataSource: DataSource): Promise<T> {
 		if (!this._checkFuncs()) return;
 		await this.execTransaction(dataSource);
 		return this._result;
@@ -63,38 +62,4 @@ export abstract class OrmTransaction {
 			}
 		}
 	}
-}
-
-function defineFunctions(target: OrmTransaction, propertyKey: string) {
-	let functions = Reflect.getMetadata(symbolFunction, target);
-	if (!functions) {
-		functions = [];
-		Reflect.defineMetadata(symbolFunction, functions, target);
-	}
-	functions.push(propertyKey);
-}
-
-function defineResultKey(target: OrmTransaction, propertyKey: string, keyName: string) {
-	if (!keyName) return;
-	let keyResult = Reflect.getMetadata(symbolKeyResult, target);
-	if (!keyResult) {
-		keyResult = {};
-		Reflect.defineMetadata(symbolKeyResult, keyResult, target);
-	}
-	keyResult[propertyKey] = keyName;
-}
-
-export function OrmIsolation(isolationLevel?: IsolationLevel) {
-	return function <T extends { new (...args: any[]): {} }>(base: T) {
-		return class extends base {
-			isolationLevel = isolationLevel;
-		};
-	};
-}
-
-export function TransactionAction(keyName?: string) {
-	return function (target: OrmTransaction, propertyKey: string) {
-		defineFunctions(target, propertyKey);
-		defineResultKey(target, propertyKey, keyName);
-	};
 }

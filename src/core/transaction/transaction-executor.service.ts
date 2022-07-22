@@ -5,7 +5,7 @@ import type { OrmTransaction } from './base.transaction';
 export class TransactionExecutorService {
 	constructor(private readonly dataSource: DataSource) {}
 
-	exec(trans: OrmTransaction) {
+	exec<T extends OrmTransaction>(trans: T) {
 		return trans.exec(this.dataSource);
 	}
 }

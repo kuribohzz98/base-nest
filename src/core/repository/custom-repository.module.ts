@@ -1,10 +1,20 @@
 import type { DynamicModule, Provider } from '@nestjs/common';
 import { getDataSourceToken } from '@nestjs/typeorm';
-import type { DataSource, DataSourceOptions } from 'typeorm';
+import type {
+	DataSource,
+	DataSourceOptions,
+	EntityManager,
+	EntityTarget,
+	ObjectLiteral,
+	QueryRunner,
+	Repository as TypeOrmRepository,
+} from 'typeorm';
 
-type Class = new (...args: any[]) => any;
+type Repository = new (target: EntityTarget<any>, manager: EntityManager, queryRunner?: QueryRunner) => ThisType<
+	TypeOrmRepository<ObjectLiteral>
+>;
 
-function getProviders(repositories: Class[], dataSource?: string | DataSource | DataSourceOptions) {
+function getProviders(repositories: Repository[], dataSource?: string | DataSource | DataSourceOptions) {
 	return repositories.map(repo => {
 		const entity = Reflect.getMetadata('custom-repo:entity', repo);
 		if (!entity) {
@@ -24,7 +34,7 @@ function getProviders(repositories: Class[], dataSource?: string | DataSource | 
 }
 
 export class CustomRepositoryModule {
-	static forFeature(repositories: Class[], dataSource?: string | DataSource | DataSourceOptions): DynamicModule {
+	static forFeature(repositories: Repository[], dataSource?: string | DataSource | DataSourceOptions): DynamicModule {
 		return {
 			module: CustomRepositoryModule,
 			providers: getProviders(repositories, dataSource),
