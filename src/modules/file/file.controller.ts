@@ -6,7 +6,7 @@ import { MAX_SIZE_FILE } from '@constants/api.constant';
 import { EContextException } from '@constants/exeption.constant';
 
 import { HttpGet, HttpPost } from '@shared/decorators/controller/http-methods.decorator';
-import { HttpResponse } from '@shared/decorators/controller/http-response.decorator';
+import { HttpResponseError, HttpResponseSuccess } from '@shared/decorators/controller/http-response.decorator';
 import { FileException } from '@shared/exceptions/http-exceptions/file.exception';
 import { getExceptionContext, httpExDocResponse, IResponseException } from '@shared/exceptions/http.exception';
 
@@ -52,19 +52,17 @@ export class FileUploadController {
 	@UsePipes(FilePipe)
 	@ApiConsumes('multipart/form-data')
 	@ApiBody({ type: UploadImageDto })
-	@HttpResponse({
-		success: { type: ImageResponseDto, status: 201 },
-		exceptions: [
-			httpExDocResponse(FileException.UploadFile, 'BAD_REQUEST', 'file-invalid'),
-			httpExDocResponse(FileException.UploadFile, 'PAYLOAD_TOO_LARGE', 'gif-too-large'),
-		],
-	})
+	@HttpResponseSuccess({ type: ImageResponseDto, status: 201 })
+	@HttpResponseError([
+		httpExDocResponse(FileException.UploadFile, 'BAD_REQUEST', 'file-invalid'),
+		httpExDocResponse(FileException.UploadFile, 'PAYLOAD_TOO_LARGE', 'gif-too-large'),
+	])
 	uploadImage(@UploadedFile() image: IFileUploadData, @Param() param: FolderTypesParam) {
 		return this.fileService.uploadImagePublicToS3(image, param.folder);
 	}
 
 	@HttpGet('upload-url')
-	@HttpResponse({ success: { type: UploadUrlResponseDto } })
+	@HttpResponseSuccess({ type: UploadUrlResponseDto })
 	getUploadUrl(@Param() param: UploadUrlParamDto) {
 		return this.fileService.getS3UploadUrl(param.type);
 	}
