@@ -2,7 +2,7 @@ node_modules
 npm-debug.log
 .husky
 .vscode
-.dist
+dist
 test
 README.md
 .prettierrc
