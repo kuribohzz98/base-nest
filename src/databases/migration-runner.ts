@@ -11,5 +11,5 @@ exec(`typeorm migration:create ${migrationDir}/${process.argv[2]}`, (error, stdo
 		console.log(`stderr: ${stderr}`);
 		return;
 	}
-	console.log(`stdout: ${stdout}`);
+	console.log(`${stdout}`);
 });
