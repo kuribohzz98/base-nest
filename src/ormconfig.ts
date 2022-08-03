@@ -8,6 +8,8 @@ import { getAlreadyExistsEnvFile } from '@shared/helpers/database.helper';
 
 dotenv.config({ path: join(__dirname, '..', getAlreadyExistsEnvFile()) });
 
+export const migrationDir = join(__dirname, 'migrations');
+
 export default {
 	type: process.env[EEnvKey.DATABASE_TYPE],
 	host: process.env[EEnvKey.DATABASE_HOST],
@@ -17,12 +19,7 @@ export default {
 	database: process.env[EEnvKey.DATABASE],
 	entities: [join(__dirname, '/entities/*.entity{.js,.ts}')],
 	migrationsTableName: 'custom_migration_table',
-	migrations: [join(__dirname, '/migrations/*{.js,.ts}')],
-	cli: {
-		migrationsDir: 'src/migrations',
-		entitiesDir: 'src/entities',
-		subscribersDir: 'src/subscribers',
-	},
+	migrations: [join(migrationDir, '*{.js,.ts}')],
 	logging: true,
 	synchronize: false,
 	cache: true,
